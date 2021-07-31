@@ -1,0 +1,5 @@
+*.sqlite3
+DivictusInterface/secret.py
+env/
+*.pyc
+*.pyo
