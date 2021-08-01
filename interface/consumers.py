@@ -22,19 +22,30 @@ class ChatConsumer(WebsocketConsumer):
             self.room_group_name, self.channel_name)
 
 
+
     def disconnect(self, close_code):
         pass
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
+        print(text_data_json)
+        message = text_data_json['message'] 
+        authorUUID = "7f80c317-9ff9-4e8b-b9f8-adc61f100111" 
+        objWS = {"authorUUID": authorUUID, "text": message}
+        obj = {"author": "AnatomicGod", "text": message}
 
+        print(obj)
+        
         self.send(text_data=json.dumps({
-            'message': message
+            'message': obj
         }))
 
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name + "Server", {"type":"message", "message": objWS} # replace Survival with 
+        )
+
     def message(self, event):
-        print(event)
+        # print("+" + event)
         self.send(text_data=json.dumps(event))
 
 
@@ -49,6 +60,11 @@ class ServerConsumer(WebsocketConsumer):
         except:
             self.close()
             return
+
+        # should enumerate Servers and stuff and where the user has righs
+
+        async_to_sync(self.channel_layer.group_add)(
+            self.ServerName + "Server", self.channel_name)
 
         print("Accepted Server with ID: " + str(sc.id))
 
@@ -75,3 +91,7 @@ class ServerConsumer(WebsocketConsumer):
         )
 
         # await self.channel_layer.send_json(self.ServerName, text_data_json)
+
+    def message(self, event):
+        print(event["message"])
+        self.send(text_data=json.dumps({"message": event["message"]}))

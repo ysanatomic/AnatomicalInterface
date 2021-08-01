@@ -1,13 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Chat Room</title>
-</head>
-<body>
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
-    <input id="chat-message-input" type="text" size="100"><br>
-    <input id="chat-message-submit" type="button" value="Send">
+{% extends 'interface/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <textarea id="chat-log" cols="100" rows="15"></textarea><br>
+    <div class="row"></div>
+    <input id="chat-message-input" type="text" size="100"><br><br>
+    <input id="chat-message-submit" type="button" value="Send" class="btn btn-primary">
     {{ room_name|json_script:"room-name" }}
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
@@ -49,5 +46,4 @@
             messageInputDom.value = '';
         };
     </script>
-</body>
-</html>
+{% endblock %}

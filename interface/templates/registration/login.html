@@ -1,0 +1,32 @@
+{% extends 'interface/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="content-section">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Log into your Divictus Interface Account</legend>
+                {{ form | crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Sign In </button>
+            </div>
+        </form>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                Forgot Password? <a class="ml-2" href="{% url 'password_reset' %}">Reset Password</a><br>
+            </small>
+            <small class="text-muted">
+                Warning: This page is Divictus Staff only. You might get blacklisted if you try to log in.<br>
+            </small>
+        </div>
+</div>
+<br>
+{% endblock %}
