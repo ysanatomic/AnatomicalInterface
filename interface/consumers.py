@@ -1,10 +1,14 @@
+from interface.serverFunctions.getPlayers import getPlayerCount
 import json
-from channels.generic.websocket import WebsocketConsumer
-from .models import ServerClient
+from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
+from .models import ServerClient, Player
 import uuid
 import redis
 from asgiref.sync import async_to_sync, sync_to_async
 from channels.layers import get_channel_layer
+from django.contrib.auth.models import User
+from .serverFunctions.getPlayers import getPlayerCount
+from .supportFunctions.tickets import *
 
 
 r = redis.Redis(host='localhost', port=6380, db=0)
@@ -13,9 +17,18 @@ channel_layer = get_channel_layer()
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
+        self.user = self.scope["user"]
+        try:
+            self.user = User.objects.get(username=self.user)
+            self.profile = Player.objects.get(user=self.user)
+            print(self.profile.minecraftUsername)
+        except:
+            self.close()
+            return
+        print(self.user)
         room_name = self.scope['url_route']['kwargs']['room_name']
 
-        self.room_group_name = room_name
+        self.room_group_name = room_name 
         print(self.room_group_name)
         self.accept()
         async_to_sync(self.channel_layer.group_add)(
@@ -24,15 +37,16 @@ class ChatConsumer(WebsocketConsumer):
 
 
     def disconnect(self, close_code):
-        pass
+        async_to_sync(self.channel_layer.group_discard)(
+            self.room_group_name, self.channel_name)
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         print(text_data_json)
         message = text_data_json['message'] 
-        authorUUID = "7f80c317-9ff9-4e8b-b9f8-adc61f100111" 
+        authorUUID = str(self.profile.uuid)
         objWS = {"authorUUID": authorUUID, "text": message}
-        obj = {"author": "AnatomicGod", "text": message}
+        obj = {"author": self.profile.minecraftUsername, "text": message}
 
         print(obj)
         
@@ -44,54 +58,189 @@ class ChatConsumer(WebsocketConsumer):
             self.room_group_name + "Server", {"type":"message", "message": objWS} # replace Survival with 
         )
 
+        ticket = createTicket()
+        print(ticket)
+        print(channel_layer)
+        ticket = ticket
+        to_send = {'type':'inquiry', 'inquiry': {'ticket': ticket, 'cmd': 'getOnlinePlayerCount'}}
+        print(channel_layer)
+        async_to_sync(channel_layer.group_send)(
+                "SurvivalServer", to_send # replace Survival with 
+        )
+
+        # objWS = {"authorUUID": "dqweqe", "text": "yes"}
+        # async_to_sync(channel_layer.group_send)(
+        #         "SurvivalServer", {"type":"message", "message": objWS} # replace Survival with 
+        #     )
+        print("sent")
+        # response = getTicketOutput(ticket)
+        # print(response)
+
     def message(self, event):
         # print("+" + event)
         self.send(text_data=json.dumps(event))
 
 
-class ServerConsumer(WebsocketConsumer):
+# class ServerConsumer(WebsocketConsumer):
+#     def connect(self):
+#         token = self.scope['url_route']['kwargs']['token']
+#         print(token)
+#         try:
+#             sc = ServerClient.objects.get(token=uuid.UUID(token))
+#             self.ServerName = sc.name
+#             sc.is_online = True
+#             sc.save()
+#             self.sc = sc
+#             print(sc.is_online)
+#             print(self.ServerName)
+#         except:
+#             self.close()
+#             return
+
+#         # should enumerate Servers and stuff and where the user has righs
+
+#         async_to_sync(self.channel_layer.group_add)(
+#             # self.ServerName + "Server", self.channel_name)
+#             "SurvivalServer", self.channel_name)
+
+
+#         print("Accepted Server with ID: " + str(sc.id))
+    
+
+#         self.accept()
+
+#     def disconnect(self, close_code):
+#         sc = self.sc
+#         sc.is_online = False
+#         sc.save()
+#         async_to_sync(self.channel_layer.group_discard)(
+#             self.ServerName + "Server", self.channel_name)
+#         print(sc.is_online)
+
+        
+
+
+#     def receive(self, text_data):
+#         text_data_json = json.loads(text_data)
+#         print(text_data_json)
+#         if "inquiryResponse" in text_data_json:
+#             text_data_json = text_data_json["inquiryResponse"]
+#             ticket = text_data_json["ticket"]
+#             response = text_data_json["response"]
+#             if r.get(ticket) == b'reserved':
+#                 r.set(ticket, json.dumps(response))
+#         else:
+#             message = text_data_json['message']
+#             print(message)
+#             # message = text_data_json['message']
+
+#             # self.send(text_data=json.dumps({
+#             #     'message': text_data_json
+#             # }))
+#             async_to_sync(self.channel_layer.group_send)(
+#                 self.ServerName, {"type":"message", "message": message}
+#             )
+
+#     def message(self, event):
+#         print(event)
+#         print(event["message"])
+#         print("77")
+#         self.send(text_data=json.dumps({"message": event["message"]}))
+
+#     def inquiry(self, event):
+#         print(event)
+#         self.send(text_data=json.dumps({"inquiry": event["inquiry"]}))
+
+class ClientCousumer(WebsocketConsumer):
     def connect(self):
+        self.user = self.scope["user"]
+        try:
+            self.user = User.objects.get(username=self.user)
+            self.profile = Player.objects.get(user=self.user)
+        except:
+            self.close()
+            return
+        self.accept()
+        async_to_sync(self.channel_layer.group_add)(
+            self.user.username, self.channel_name)
+
+    def disconnect(self, close_code):
+        async_to_sync(self.channel_layer.group_discard)(
+            self.user.username, self.channel_name)
+
+    def playerCount(self, event):
+        print(event)
+        self.send(text_data=json.dumps({"inquiry": event["inquiry"]}))
+
+
+class ServerConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
         token = self.scope['url_route']['kwargs']['token']
         print(token)
         try:
             sc = ServerClient.objects.get(token=uuid.UUID(token))
             self.ServerName = sc.name
+            sc.is_online = True
+            sc.save()
+            self.sc = sc
+            print(sc.is_online)
             print(self.ServerName)
         except:
-            self.close()
+            await self.close()
             return
 
         # should enumerate Servers and stuff and where the user has righs
 
-        async_to_sync(self.channel_layer.group_add)(
-            self.ServerName + "Server", self.channel_name)
+        await self.channel_layer.group_add(
+            # self.ServerName + "Server", self.channel_name)
+            "SurvivalServer", self.channel_name)
+
 
         print("Accepted Server with ID: " + str(sc.id))
-
     
 
-        self.accept()
+        await self.accept()
 
-    def disconnect(self, close_code):
-        pass
+    async def disconnect(self, close_code):
+        sc = self.sc
+        sc.is_online = False
+        sc.save()
+        await self.channel_layer.group_discard(
+            self.ServerName + "Server", self.channel_name)
+        print(sc.is_online)
+
+        
 
 
-    def receive(self, text_data):
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
         print(text_data_json)
-        print(message)
-        # message = text_data_json['message']
+        redis = await aioredis.create_redis(
+        'redis://localhost:6380')
+        if "inquiryResponse" in text_data_json:
+            text_data_json = text_data_json["inquiryResponse"]
+            ticket = text_data_json["ticket"]
+            response = text_data_json["response"]
+            if await redis.get(ticket) == b'reserved':
+                await redis.set(ticket, json.dumps(response))
+        else:
+            message = text_data_json['message']
+            print(message)
+            # message = text_data_json['message']
 
-        # self.send(text_data=json.dumps({
-        #     'message': text_data_json
-        # }))
-        async_to_sync(self.channel_layer.group_send)(
-            self.ServerName, {"type":"message", "message": message}
-        )
+            # self.send(text_data=json.dumps({
+            #     'message': text_data_json
+            # }))
+            await self.channel_layer.group_send(
+                self.ServerName, {"type":"message", "message": message}
+            )
 
-        # await self.channel_layer.send_json(self.ServerName, text_data_json)
-
-    def message(self, event):
+    async def message(self, event):
+        print(event)
         print(event["message"])
-        self.send(text_data=json.dumps({"message": event["message"]}))
+        print("77")
+        await self.send(text_data=json.dumps({"message": event["message"]}))
+
+    async def inquiry(self, event):
+        print(event)
+        await self.send(text_data=json.dumps({"inquiry": event["inquiry"]}))

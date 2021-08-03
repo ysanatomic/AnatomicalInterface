@@ -17,9 +17,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from interface.models import ServerClient
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('interface.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+for cl in ServerClient.objects.all():
+    cl.is_online = False
+    cl.save()
+print("[*] All Server Clients set to Offline")

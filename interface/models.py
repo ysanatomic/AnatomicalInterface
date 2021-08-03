@@ -9,6 +9,7 @@ class ServerClient(models.Model):
     token = models.UUIDField(unique=True)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    is_online = models.BooleanField(default=False)
     def __str__(self):
         return self.name
 
@@ -29,6 +30,7 @@ class Player(models.Model):
     minecraftUsername = models.CharField(unique=True, max_length=16, null=True, default=None)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
     additional_permissions = models.ManyToManyField(Permissions, blank=True)
+    rights_in = models.ManyToManyField(ServerClient, blank=True)
     uuid = models.UUIDField(unique=True)
 
     def __str__(self):

@@ -10,5 +10,7 @@ urlpatterns = [
     path('chat/<str:room_name>/', views.room, name='room'),
     # path('login/', LoginView.as_view(template_name='interface/login.html'), name='login'),
     path('', include('django.contrib.auth.urls')),
+    path('servers/', views.serversView, name='servers'),
+
 ]
 
