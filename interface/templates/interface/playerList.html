@@ -3,6 +3,6 @@
 {% block content %}
     <h4 class="h3centered" style="color:indianred">Currently in {{server}} Online are:</h4>
     {% for player in players %}
-        <h5 class="h3centered">{{player}}</h5>
+        <a href="/player/{{player}}"><h5 class="h3centered">{{player}}</h5></a>
     {% endfor %}
 {% endblock %}

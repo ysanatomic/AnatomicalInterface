@@ -13,5 +13,8 @@ urlpatterns = [
     # path('servers/', views.serversView, name='servers'),
     path('', views.serversView, name='index'),
     path('onlinePlayers/<str:serverName>/', views.getOnlineUsers, name='getOnlinePlayers'),
+    path('player/<str:playerName>/', views.playerView, name='playerView'),
+    path('new_note/<str:playerName>/', views.addNoteView, name='addNoteView'),
+
 ]
 

@@ -214,7 +214,7 @@ class ServerConsumer(AsyncWebsocketConsumer):
             response = text_data_json["response"]
             if await redis.get(ticket) == b'reserved':
                 await redis.set(ticket, json.dumps(response))
-        else:
+        elif "message" in text_data_json:
             message = text_data_json['message']
             print(message)
             # message = text_data_json['message']

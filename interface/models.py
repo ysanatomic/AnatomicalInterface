@@ -27,7 +27,7 @@ class Role(models.Model):
 
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    minecraftUsername = models.CharField(unique=True, max_length=16, null=True, default=None)
+    minecraftUsername = models.CharField(unique=True, max_length=24, null=True, default=None)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
     additional_permissions = models.ManyToManyField(Permissions, blank=True)
     rights_in = models.ManyToManyField(ServerClient, blank=True)
@@ -35,3 +35,13 @@ class Player(models.Model):
 
     def __str__(self):
         return self.minecraftUsername
+
+
+class Notes(models.Model):
+    player = models.CharField(max_length=24, null=False)
+    content = models.TextField()
+    madeby = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+
+    def __str__(self):
+        return self.player + ": " + self.content[:5] + "..."
