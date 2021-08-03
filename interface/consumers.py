@@ -58,15 +58,6 @@ class ChatConsumer(WebsocketConsumer):
             self.room_group_name + "Server", {"type":"message", "message": objWS} # replace Survival with 
         )
 
-        ticket = createTicket()
-        print(ticket)
-        print(channel_layer)
-        ticket = ticket
-        to_send = {'type':'inquiry', 'inquiry': {'ticket': ticket, 'cmd': 'getOnlinePlayerCount'}}
-        print(channel_layer)
-        async_to_sync(channel_layer.group_send)(
-                "SurvivalServer", to_send # replace Survival with 
-        )
 
         # objWS = {"authorUUID": "dqweqe", "text": "yes"}
         # async_to_sync(channel_layer.group_send)(
@@ -193,7 +184,7 @@ class ServerConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_add(
             # self.ServerName + "Server", self.channel_name)
-            "SurvivalServer", self.channel_name)
+            sc.name + "Server", self.channel_name)
 
 
         print("Accepted Server with ID: " + str(sc.id))

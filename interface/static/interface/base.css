@@ -137,12 +137,13 @@ footer {
 .xshadow {
   -webkit-border-radius: 0% 0% 100% 100% / 0% 0% 8px 8px;
   -webkit-box-shadow: rgba(0, 0, 0,.30) 0 2px 3px;
+  height: fit-content;
   }
   .xcontainer {
     margin: 0 auto;
     margin-top: 50px;;
   
-    height: 100px;
+    height: fit-content;
     background: #F2F2F2;
     border: 1px solid #ccc;
     box-shadow: 1px 1px 2px #fff inset,

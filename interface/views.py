@@ -1,3 +1,4 @@
+from django.http.response import Http404
 from interface.serverFunctions.getPlayers import getPlayerCount
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -42,16 +43,33 @@ def serversView(request):
         if server.is_online:
             serverName = server.name
             ticket = createTicket() 
-            # loop = asyncio.new_event_loop()
-            # asyncio.set_event_loop(loop)
             to_send = {'type':'inquiry', 'inquiry': {'ticket': ticket, 'cmd': 'getOnlinePlayerCount'}}
-            # loop.create_task(async_to_sync(channel_layer.group_send)(serverName + "Server", to_send))
-            # event_loop = asyncio.new_event_loop()
-            # event_loop.run_until_complete(channel_layer.group_send(serverName + "Server", to_send))
-            # server.playerCount = event_loop.call_later(5, getTicketOutput(ticket), None)
             async_to_sync(channel_layer.group_send)(serverName + "Server", to_send)
             server.playerCount = getTicketOutput(ticket)
         else:
             server.playerCount = 0
 
     return render(request, 'interface/servers.html', {"servers": hasPermissionsTo})
+
+@login_required(login_url = "/login/")
+def getOnlineUsers(request, serverName):
+    try:
+        server = ServerClient.objects.get(name=serverName)
+    except:
+        return render(request, 'interface/404.html', status=404)
+
+    if server.is_online:
+        ticket = createTicket() 
+        to_send = {'type':'inquiry', 'inquiry': {'ticket': ticket, 'cmd': 'getOnlinePlayers'}}
+        async_to_sync(channel_layer.group_send)(serverName + "Server", to_send)
+        players = getTicketOutput(ticket).split(",")
+        print(players)
+        players_filtered = []
+        for p in players:
+            p = ''.join(filter(str.isalnum, p)) 
+            players_filtered.append(p)
+        return render(request, 'interface/playerList.html', {"players": players_filtered, "server": server.name})
+    else:
+        players_filtered = []
+        return render(request, 'interface/playerList.html', {"players": players_filtered, "server": server.name})
+

@@ -1,0 +1,8 @@
+{% extends 'interface/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <h4 class="h3centered" style="color:indianred">Currently in {{server}} Online are:</h4>
+    {% for player in players %}
+        <h5 class="h3centered">{{player}}</h5>
+    {% endfor %}
+{% endblock %}
