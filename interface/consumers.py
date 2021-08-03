@@ -1,7 +1,7 @@
 from interface.serverFunctions.getPlayers import getPlayerCount
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
-from .models import ServerClient, Player
+from .models import ServerClient, Player, Notes
 import uuid
 import redis
 from asgiref.sync import async_to_sync, sync_to_async
@@ -225,6 +225,15 @@ class ServerConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_send(
                 self.ServerName, {"type":"message", "message": message}
             )
+        elif "noteContent" in text_data_json:
+            text_data_json = text_data_json["noteContent"]
+            note = text_data_json["note"]
+            userUsername = text_data_json["username"]
+            madebyUUID = text_data_json["madebyUUID"]
+            madebyPlayer = Player.objects.get(uuid=uuid.UUID(madebyUUID))
+            madebyUser = madebyPlayer.user
+            print(madebyUser)
+            Notes.objects.create(player=userUsername, madeby=madebyUser, content=note)
 
     async def message(self, event):
         print(event)
