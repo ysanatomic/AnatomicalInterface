@@ -102,3 +102,11 @@ def addNoteView(request, playerName):
         'playerName': playerName
     }
     return render(request, 'interface/add_note.html', content)
+
+@login_required(login_url="/loign/")
+def getLatestNotes(request):
+    latestNotes = Notes.objects.all().order_by("-id")[:30]
+    content = {
+        'notes': latestNotes
+    }
+    return render(request, 'interface/latest_notes.html', content)

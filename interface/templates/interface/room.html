@@ -21,8 +21,11 @@
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             var messageObj = data["message"];
-            var message = messageObj["text"]
-            var author = messageObj["author"]
+            var message = messageObj["text"];
+            var author = messageObj["author"];
+            if(author == ""){
+                author = "Server";
+            }
 
             document.querySelector('#chat-log').value += ("<" + author + ">" + " " + message + '\n');
         };
@@ -41,6 +44,9 @@
         document.querySelector('#chat-message-submit').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
+            if(message.startsWith("/")){
+                alert("Please do not execute any commands from here.")
+            }
             chatSocket.send(JSON.stringify({
                 'message': message
             }));

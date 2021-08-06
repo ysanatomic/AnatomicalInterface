@@ -1,3 +1,4 @@
+from os import access
 from interface.serverFunctions.getPlayers import getPlayerCount
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
@@ -230,10 +231,36 @@ class ServerConsumer(AsyncWebsocketConsumer):
             note = text_data_json["note"]
             userUsername = text_data_json["username"]
             madebyUUID = text_data_json["madebyUUID"]
-            madebyPlayer = Player.objects.get(uuid=uuid.UUID(madebyUUID))
+            try:
+                madebyPlayer = Player.objects.get(uuid=uuid.UUID(madebyUUID))
+            except:
+                print("[***] Player with UUID {} has no account in the interface!".format(madebyUUID))
             madebyUser = madebyPlayer.user
             print(madebyUser)
             Notes.objects.create(player=userUsername, madeby=madebyUser, content=note)
+
+        elif "getNoteRequest" in text_data_json:
+            text_data_json = text_data_json["getNoteRequest"]
+            username = text_data_json["username"]
+            requestedByUUID = text_data_json["requestedByUUID"]
+            print(requestedByUUID)
+            notes = Notes.objects.all().filter(player=username).order_by("-created_at")[:3].all()
+            notesToSendBack = {}
+            notesToSendBack["requesterUUID"] = requestedByUUID
+            allNotes = []
+            for note in notes:
+                oneNote = {
+                    "id": note.id,
+                    "madeBy": User.objects.get(id=note.madeby_id).username,
+                    "content": note.content
+                }
+                allNotes.append(oneNote)
+
+            notesToSendBack["notes"] = allNotes
+            print(notesToSendBack)
+            # await self.channel_layer.group_send(self.ServerName+"Server", allNotes)
+            await self.send(text_data=json.dumps({"notesResponse": notesToSendBack}))
+            print(notes)
 
     async def message(self, event):
         print(event)

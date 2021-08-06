@@ -1,0 +1,36 @@
+{% extends 'interface/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="content-section">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <h5 class="h3centered" style="color:crimson">Latest Notes</h5>
+    {% for note in notes %}
+        <article class="media content-section">
+            <div style="padding-top:15px;">
+            </div>
+            <div class="media-body">
+                <div class="article-metadata">
+                    <p><h7 style="color:darkcyan">Added by: {{note.madeby}} </h7>
+                        <small class="text-muted">Created at {{note.created_at }}</small></p>
+                </div>
+                <h4>{{ note.player }}</h2>
+                <p class="article-content">{{note.content | safe}}</p>
+            </div>
+        </article>
+        <br>
+    {% endfor %}
+    <br><br><br>
+    <form action="/new_note/{{ playerName }}/">
+        <legend class="border-bottom mb-4">Add a new note to this player</legend>
+        <small class="text-muted">
+            <button type="submit" class="btn btn-success">Add a new Note</button>
+        </small>
+    </form>
+</div>
+{% endblock %}
