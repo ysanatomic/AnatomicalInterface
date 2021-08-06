@@ -16,6 +16,6 @@ urlpatterns = [
     path('player/<str:playerName>/', views.playerView, name='playerView'),
     path('new_note/<str:playerName>/', views.addNoteView, name='addNoteView'),
     path('notes/', views.getLatestNotes, name='getLatestNotes'),
-
+    path('profile/', views.profile, name="profile")
 ]
 

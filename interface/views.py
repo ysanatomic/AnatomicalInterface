@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-from interface.models import Notes, Player, ServerClient
+from interface.models import NPCPlayer, Notes, Player, ServerClient
 from django.shortcuts import redirect
 from interface.supportFunctions.tickets import *
 import threading
@@ -13,7 +13,7 @@ from asgiref.sync import async_to_sync, sync_to_async
 from channels.layers import get_channel_layer
 import asyncio
 from django.contrib import messages
-
+from datetime import datetime
 
 channel_layer = get_channel_layer()
 
@@ -71,6 +71,15 @@ def getOnlineUsers(request, serverName):
         for p in players:
             p = ''.join(filter(str.isalnum, p)) 
             players_filtered.append(p)
+            try:
+                pl = NPCPlayer.objects.get(nickname=p)
+                if pl.is_currently_online == False:
+                    pl.is_currently_online = True
+                    pl.was_last_in = serverName
+                    pl.last_online = datetime.now()
+                    pl.save()
+            except:
+                pass
         return render(request, 'interface/playerList.html', {"players": players_filtered, "server": server.name})
     else:
         players_filtered = []
@@ -80,8 +89,11 @@ def getOnlineUsers(request, serverName):
 def playerView(request, playerName):
 
     notes = Notes.objects.all().filter(player=playerName).order_by('-created_at')
-
-    return render(request, 'interface/player.html', {"playerName": playerName, "notes": notes})
+    try:
+        player = NPCPlayer.objects.get(nickname=playerName)
+    except:
+        player = NPCPlayer.objects.create(nickname=playerName)
+    return render(request, 'interface/player.html', {"player": player, "notes": notes})
 
 @login_required(login_url="/login/")
 def addNoteView(request, playerName):
@@ -110,3 +122,14 @@ def getLatestNotes(request):
         'notes': latestNotes
     }
     return render(request, 'interface/latest_notes.html', content)
+
+
+@login_required(login_url="/login/")
+def profile(request):
+    user = request.user
+    profile = Player.objects.get(user=user)
+    content = {
+        'player': profile,
+        'user': user,
+    }
+    return render(request, 'interface/profile.html', content)

@@ -45,3 +45,9 @@ class Notes(models.Model):
 
     def __str__(self):
         return self.player + ": " + self.content[:5] + "..."
+
+class NPCPlayer(models.Model):
+    nickname = models.CharField(max_length=20, null=False, unique=True)
+    last_online = models.DateTimeField(null=True)
+    is_currently_online = models.BooleanField(default=False)
+    was_last_in = models.CharField(max_length=30, default="Nowhere")

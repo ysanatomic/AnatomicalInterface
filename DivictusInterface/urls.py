@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from interface.models import ServerClient
+from interface.models import NPCPlayer, ServerClient
 
 
 urlpatterns = [
@@ -28,4 +28,10 @@ urlpatterns = [
 for cl in ServerClient.objects.all():
     cl.is_online = False
     cl.save()
+
+for pl in NPCPlayer.objects.all():
+    pl.is_currently_online = False
+    pl.save()
+
 print("[*] All Server Clients set to Offline")
+print("[*] All Player status set to Offline")

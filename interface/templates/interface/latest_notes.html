@@ -19,7 +19,7 @@
                     <p><h7 style="color:darkcyan">Added by: {{note.madeby}} </h7>
                         <small class="text-muted">Created at {{note.created_at }}</small></p>
                 </div>
-                <h4>{{ note.player }}</h2>
+                <h4><a href="/player/{{note.player}}">{{ note.player }}</a></h2>
                 <p class="article-content">{{note.content | safe}}</p>
             </div>
         </article>

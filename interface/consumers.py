@@ -2,7 +2,7 @@ from os import access
 from interface.serverFunctions.getPlayers import getPlayerCount
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
-from .models import ServerClient, Player, Notes
+from .models import NPCPlayer, ServerClient, Player, Notes
 import uuid
 import redis
 from asgiref.sync import async_to_sync, sync_to_async
@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from .serverFunctions.getPlayers import getPlayerCount
 from .supportFunctions.tickets import *
 
+from datetime import datetime
 
 r = redis.Redis(host='localhost', port=6380, db=0)
 channel_layer = get_channel_layer()
@@ -205,7 +206,10 @@ class ServerConsumer(AsyncWebsocketConsumer):
 
 
     async def receive(self, text_data):
-        text_data_json = json.loads(text_data)
+        try:
+            text_data_json = json.loads(text_data)
+        except:
+            return
         print(text_data_json)
         redis = await aioredis.create_redis(
         'redis://localhost:6380')
@@ -261,6 +265,21 @@ class ServerConsumer(AsyncWebsocketConsumer):
             # await self.channel_layer.group_send(self.ServerName+"Server", allNotes)
             await self.send(text_data=json.dumps({"notesResponse": notesToSendBack}))
             print(notes)
+        elif "playerStatusChanged" in text_data_json:
+            text_data_json = text_data_json["playerStatusChanged"]
+            nickname = text_data_json["playerNickname"]
+            isOnline = text_data_json["isOnline"]
+            try:
+                player = NPCPlayer.objects.get(nickname=nickname)
+            except:
+                player = NPCPlayer.objects.create(nickname=nickname, last_online=datetime.now())
+            print(player)
+            print(isOnline)
+            player.is_currently_online = isOnline
+            player.was_last_in = self.ServerName
+            player.last_online = datetime.now()
+            player.save()
+
 
     async def message(self, event):
         print(event)
