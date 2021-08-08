@@ -2,7 +2,7 @@ from os import access
 from interface.serverFunctions.getPlayers import getPlayerCount
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
-from .models import NPCPlayer, ServerClient, Player, Notes
+from .models import ChatMessage, NPCPlayer, ServerClient, Player, Notes
 import uuid
 import redis
 from asgiref.sync import async_to_sync, sync_to_async
@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from .serverFunctions.getPlayers import getPlayerCount
 from .supportFunctions.tickets import *
 
-from datetime import datetime
+from datetime import date, datetime
 
 r = redis.Redis(host='localhost', port=6380, db=0)
 channel_layer = get_channel_layer()
@@ -60,6 +60,7 @@ class ChatConsumer(WebsocketConsumer):
             self.room_group_name + "Server", {"type":"message", "message": objWS} # replace Survival with 
         )
 
+        ChatMessage.objects.create(nickname=self.profile.minecraftUsername, message=message, sent_on=datetime.now(), sent_in=self.room_group_name)
 
         # objWS = {"authorUUID": "dqweqe", "text": "yes"}
         # async_to_sync(channel_layer.group_send)(
@@ -190,9 +191,33 @@ class ServerConsumer(AsyncWebsocketConsumer):
 
 
         print("Accepted Server with ID: " + str(sc.id))
-    
-
         await self.accept()
+
+        # ticket = createTicket() 
+        # to_send = {'type':'inquiry', 'inquiry': {'ticket': ticket, 'cmd': 'getOnlinePlayers'}}
+        # await self.send(text_data=json.dumps(to_send))
+        # players = getTicketOutput(ticket).split(",")
+        # print(players)
+        # players_filtered = []
+        # for p in players:
+        #     p = ''.join(filter(str.isalnum, p)) 
+        #     players_filtered.append(p)
+        #     try:
+        #         pl = NPCPlayer.objects.get(nickname=p)
+        #         if pl.is_currently_online == False:
+        #             pl.is_currently_online = True
+        #             pl.was_last_in = self.ServerName
+        #             pl.last_online = datetime.now()
+        #             pl.save()
+        #     except:
+        #         pl = NPCPlayer.objects.create(nickname=p)
+        #         if pl.is_currently_online == False:
+        #             pl.is_currently_online = True
+        #             pl.was_last_in = self.ServerName
+        #             pl.last_online = datetime.now()
+        #             pl.save()
+
+
 
     async def disconnect(self, close_code):
         sc = self.sc
@@ -201,6 +226,13 @@ class ServerConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(
             self.ServerName + "Server", self.channel_name)
         print(sc.is_online)
+        players = NPCPlayer.objects.filter(was_last_in=self.ServerName)
+        for player in players:
+            player.is_currently_online = False
+            player.last_online = datetime.now()
+            player.save()
+        
+
 
         
 
@@ -230,6 +262,7 @@ class ServerConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_send(
                 self.ServerName, {"type":"message", "message": message}
             )
+            ChatMessage.objects.create(nickname=message["author"], message=message["text"], sent_on=datetime.now(), sent_in=self.ServerName)
         elif "noteContent" in text_data_json:
             text_data_json = text_data_json["noteContent"]
             note = text_data_json["note"]
@@ -286,6 +319,7 @@ class ServerConsumer(AsyncWebsocketConsumer):
         print(event["message"])
         print("77")
         await self.send(text_data=json.dumps({"message": event["message"]}))
+
 
     async def inquiry(self, event):
         print(event)

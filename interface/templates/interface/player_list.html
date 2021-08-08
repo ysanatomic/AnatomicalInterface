@@ -1,0 +1,40 @@
+{% extends 'interface/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    {{ form | crispy }}
+                </fieldset>
+        </form>
+        {% for player in page_obj %}
+            <a href="/player/{{player.nickname}}"><h5 class="h3centered">{{player.nickname}}</h5></a>
+        {% endfor %}
+
+
+        {% if posts.has_next %}
+            <div class="more_link">
+                <a class="infinite-more-link btn btn-primary" href="?page={{ posts.next_page_number }}">Loading</a>
+            </div>
+        {% endif %}
+
+        <script>
+            var infinite = new Waypoint.Infinite({
+            element: $('.infinite-container')[0]
+            });
+        </script>
+    {% endblock %}
+
+    {% block style %}
+        <style>
+
+        </style>
+{% endblock %}

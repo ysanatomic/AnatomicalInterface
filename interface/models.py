@@ -51,3 +51,9 @@ class NPCPlayer(models.Model):
     last_online = models.DateTimeField(null=True)
     is_currently_online = models.BooleanField(default=False)
     was_last_in = models.CharField(max_length=30, default="Nowhere")
+
+class ChatMessage(models.Model):
+    nickname = models.CharField(max_length=20, null=False)
+    message = models.TextField(max_length=300)
+    sent_on = models.DateTimeField(null=False)
+    sent_in = models.CharField(max_length=20, null = False, default="Unknown")
