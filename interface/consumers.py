@@ -10,6 +10,7 @@ from channels.layers import get_channel_layer
 from django.contrib.auth.models import User
 from .serverFunctions.getPlayers import getPlayerCount
 from .supportFunctions.tickets import *
+from django.core.paginator import Paginator
 
 from datetime import date, datetime
 
@@ -285,13 +286,19 @@ class ServerConsumer(AsyncWebsocketConsumer):
             text_data_json = text_data_json["getNoteRequest"]
             username = text_data_json["username"]
             requestedByUUID = text_data_json["requestedByUUID"]
+            page_number = text_data_json["page"]
+            if page_number < 1:
+                page_number = 1
             print(text_data_json)
             print(requestedByUUID)
-            notes = Notes.objects.all().filter(player=username).order_by("-created_at")[:3].all()
+            notes = Notes.objects.all().filter(player=username).order_by("-created_at")
             notesToSendBack = {}
             notesToSendBack["requesterUUID"] = requestedByUUID
             allNotes = []
-            for note in notes:
+            paginator = Paginator(notes, 3)
+            page_obj = paginator.get_page(page_number)
+            print(page_obj)
+            for note in page_obj:
                 oneNote = {
                     "id": note.id,
                     "madeBy": User.objects.get(id=note.madeby_id).username,
