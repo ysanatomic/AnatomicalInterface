@@ -11,7 +11,8 @@ from django.contrib.auth.models import User
 from .serverFunctions.getPlayers import getPlayerCount
 from .supportFunctions.tickets import *
 from django.core.paginator import Paginator
-
+from DivictusInterface.secret import litebansconfig
+import mysql.connector
 from datetime import date, datetime
 
 r = redis.Redis(host='localhost', port=6380, db=0)
@@ -348,6 +349,48 @@ class ServerConsumer(AsyncWebsocketConsumer):
                 player.save()
             except:
                 pass
+        elif "getPlayerInfoRequest" in text_data_json:
+            text_data_json = text_data_json["getPlayerInfoRequest"]
+            print(text_data_json)
+            try:
+                player = NPCPlayer.objects.get(nickname=text_data_json["player"])
+            except:
+                return
+            dataToSendBack = {}
+            dataToSendBack["playerName"] = player.nickname
+            dataToSendBack["requesterUUID"] = text_data_json["requesterUUID"]
+            cnx = mysql.connector.connect(**litebansconfig)
+
+            cursor = cnx.cursor()
+            cursor.execute("SELECT until FROM litebans_bans WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
+            try:
+                lastbanwhen = cursor.fetchone()[0]
+                cursor2 = cnx.cursor()
+                cursor2.execute("SELECT until FROM litebans_mutes WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
+                lastmutewhen = cursor2.fetchone()[0]
+                print(int(time.time()))
+                print(lastbanwhen)
+                if lastbanwhen > int(time.time() * 1000):
+                    player.currently_banned = True
+                else: 
+                    player.currently_banned = False
+
+                if lastmutewhen > int(time.time() * 1000):
+                    player.currently_muted = True
+                else: 
+                    player.currently_muted = False
+            except Exception as e:
+                print(e)
+            cnx.close()
+            dataToSendBack["banned"] = player.currently_banned
+            dataToSendBack["muted"] = player.currently_muted
+            dataToSendBack["allowedToReport"] = player.is_allowed_to_report
+            dataToSendBack["isCurrentlyOnline"] = player.is_currently_online
+            dataToSendBack["lastSeenIn"] = player.was_last_in
+            dataToSendBack["lastOnline"] = str(player.last_online.strftime('%Y-%m-%d %H:%M'))
+            print(dataToSendBack)
+            await self.send(text_data=json.dumps({"playerInfo": dataToSendBack}))
+
 
     async def message(self, event):
         print(event)
