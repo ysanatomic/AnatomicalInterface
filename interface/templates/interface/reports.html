@@ -1,0 +1,24 @@
+{% extends 'interface/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <h4 class="h3centered" style="color: darkcyan;">Unresolved Reports</h4><br>
+    <table style="width:100%">
+    <tr>
+        <th>Reported Player</th>
+        <th>Report Made By</th>
+        <th>Reason</th>
+        <th>Made On</th>
+        <th>Made In</th>
+    </tr>
+    {% for report in page_obj %}
+    <tr>
+        <td>{{report.target}}</td>
+        <td>{{report.made_by}}</td>
+        <td>{{report.content}}</td>
+        <td>{{report.made_on}}</td>
+        <td>{{report.made_in}}</td>
+
+    </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

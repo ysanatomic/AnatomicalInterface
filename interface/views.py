@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-from interface.models import ChatMessage, NPCPlayer, Notes, Player, ServerClient
+from interface.models import ChatMessage, NPCPlayer, Notes, Player, Report, ServerClient
 from django.shortcuts import redirect
 from interface.supportFunctions.tickets import *
 import threading
@@ -108,21 +108,24 @@ def playerView(request, playerName):
         player = NPCPlayer.objects.create(nickname=playerName)
     cursor = cnx.cursor()
     cursor.execute("SELECT until FROM litebans_bans WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
-    lastbanwhen = cursor.fetchone()[0]
-    cursor2 = cnx.cursor()
-    cursor2.execute("SELECT until FROM litebans_mutes WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
-    lastmutewhen = cursor2.fetchone()[0]
-    print(int(time.time()))
-    print(lastbanwhen)
-    if lastbanwhen > int(time.time() * 1000):
-        player.currently_banned = True
-    else: 
-        player.currently_banned = False
+    try:
+        lastbanwhen = cursor.fetchone()[0]
+        cursor2 = cnx.cursor()
+        cursor2.execute("SELECT until FROM litebans_mutes WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
+        lastmutewhen = cursor2.fetchone()[0]
+        print(int(time.time()))
+        print(lastbanwhen)
+        if lastbanwhen > int(time.time() * 1000):
+            player.currently_banned = True
+        else: 
+            player.currently_banned = False
 
-    if lastmutewhen > int(time.time() * 1000):
-        player.currently_muted = True
-    else: 
-        player.currently_muted = False
+        if lastmutewhen > int(time.time() * 1000):
+            player.currently_muted = True
+        else: 
+            player.currently_muted = False
+    except Exception as e:
+        print(e)
     cnx.close()
     return render(request, 'interface/player.html', {"player": player, "notes": notes})
 
@@ -252,7 +255,7 @@ def getMuteHistory(request, playerName):
         punishment["punishedOn"] = datetime.utcfromtimestamp(row[2]/1000).strftime('%Y-%m-%d %H:%M:%S')
         punishment["punishmentUntil"] = datetime.utcfromtimestamp(row[3]/1000).strftime('%Y-%m-%d %H:%M:%S')
         punishments.append(punishment)
-
+    cnx.close()
     return render(request, 'interface/history.html', {'punishments': punishments, 'historyOf': playerName, 'whatHistory': 'Mute'})
 
 @login_required(login_url="/login/")
@@ -273,5 +276,21 @@ def getBanHistory(request, playerName):
         punishment["punishedOn"] = datetime.utcfromtimestamp(row[2]/1000).strftime('%Y-%m-%d %H:%M:%S')
         punishment["punishmentUntil"] = datetime.utcfromtimestamp(row[3]/1000).strftime('%Y-%m-%d %H:%M:%S')
         punishments.append(punishment)
-
+    cnx.close()
     return render(request, 'interface/history.html', {'punishments': punishments, 'historyOf': playerName, 'whatHistory': 'Ban'})
+
+
+@login_required(login_url="/login/")
+def getReports(request, playerName=""):
+    if playerName == "":
+        allReports = Report.objects.filter(resolved_by="Noone").order_by("-made_on")
+        paginator = Paginator(allReports, 200)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request, 'interface/reports.html', {'page_obj': page_obj})
+    else:
+        allReports = Report.objects.filter(resolved_by="Noone", target=playerName).order_by("-made_on")
+        paginator = Paginator(allReports, 200)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request, 'interface/reports.html', {'page_obj': page_obj})

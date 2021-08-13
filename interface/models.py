@@ -61,9 +61,21 @@ class NPCPlayer(models.Model):
     is_currently_online = models.BooleanField(default=False)
     uuid = models.UUIDField(unique=True, default=None, null=True)
     was_last_in = models.CharField(max_length=30, default="Nowhere")
+    is_allowed_to_report = models.BooleanField(default=True)
 
 class ChatMessage(models.Model):
     nickname = models.CharField(max_length=20, null=False)
     message = models.TextField(max_length=300)
     sent_on = models.DateTimeField(null=False)
     sent_in = models.CharField(max_length=20, null = False, default="Unknown")
+
+class Report(models.Model):
+    made_by = models.CharField(max_length=20, null=False)
+    target = models.CharField(max_length=20, null=False, default="Nobody")
+    resolved_by = models.CharField(max_length=20, null=True, default="Noone") # either add the nickname of the Interface Player or the discord username
+    content = models.TextField()
+    made_on = models.DateTimeField(auto_now_add=True, null=True)
+    made_in = models.CharField(max_length=20, null=False, default="Unknown")
+    resolved_on = models.DateTimeField(null=True)
+    def __str__(self):
+        return self.made_by + ": " + self.content[:10] + "..."

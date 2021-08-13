@@ -2,7 +2,7 @@ from os import access
 from interface.serverFunctions.getPlayers import getPlayerCount
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
-from .models import ChatMessage, NPCPlayer, ServerClient, Player, Notes
+from .models import ChatMessage, NPCPlayer, Report, ServerClient, Player, Notes
 import uuid
 import redis
 from asgiref.sync import async_to_sync, sync_to_async
@@ -327,7 +327,27 @@ class ServerConsumer(AsyncWebsocketConsumer):
             if player.uuid == None:
                 player.uuid = text_data_json["uuid"]
             player.save()
-
+        elif "reportContent" in text_data_json:
+            text_data_json = text_data_json["reportContent"]
+            made_by = text_data_json["made_by"]
+            content = text_data_json["content"]
+            target = text_data_json["target"]
+            madeByPlayer = NPCPlayer.objects.get(nickname=made_by)
+            if madeByPlayer.is_allowed_to_report:
+                report = Report.objects.create(made_by = made_by, content=content, made_in = self.ServerName, target=target)
+                print(report)
+            else:
+                pass
+        elif "reportAbilityChange" in text_data_json:
+            text_data_json = text_data_json["reportAbilityChange"]
+            player = text_data_json["player"]
+            alloworNot = text_data_json["allow"]
+            try:
+                player = NPCPlayer.objects.get(nickname=player)
+                player.is_allowed_to_report = alloworNot
+                player.save()
+            except:
+                pass
 
     async def message(self, event):
         print(event)

@@ -17,7 +17,9 @@
     <p class="">Are they currently Banned: <h7 style="color: crimson;">{{player.currently_banned}}</h7></p>
     <p class="">Are they currently Muted: <h7 style="color: goldenrod">{{player.currently_muted}}</h7></p>
     <p class="">Ban History of <h7 style="color: cornflowerblue;"><a href="/banHistory/{{player.nickname}}" style="color: crimson;">{{player.nickname}}</a></h7></p>
-    <p class="">Mute History of <h7 style="color: cornflowerblue;"><a href="/muteHistory/{{player.nickname}}" style="color:tomato;">{{player.nickname}}</a></h7></p><br><br>
+    <p class="">Mute History of <h7 style="color: cornflowerblue;"><a href="/muteHistory/{{player.nickname}}" style="color:tomato;">{{player.nickname}}</a></h7></p>
+    <p class="">Report History of <h7 style="color: cornflowerblue;"><a href="/reports/{{player.nickname}}" style="color:cornflowerblue;">{{player.nickname}}</a></h7></p>
+    <p class="">Are they allowed to report: <h7 style="color: cornflowerblue;">{{player.is_allowed_to_report}}</h7></p><br><br>
 
 
     {% for note in notes %}
