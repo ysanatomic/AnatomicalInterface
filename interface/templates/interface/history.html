@@ -1,0 +1,22 @@
+{% extends 'interface/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <h4 class="h3centered" style="color: darkcyan;"> {{whatHistory}} History of {{historyOf}}</h4><br>
+    <table style="width:100%">
+    <tr>
+        <th>Punished By</th>
+        <th>Reason</th>
+        <th>Punished On</th>
+        <th>Active Until</th>
+
+    </tr>
+    {% for punishment in punishments %}
+    <tr>
+        <td>{{punishment.punishedBy}}</td>
+        <td>{{punishment.reason}}</td>
+        <td>{{punishment.punishedOn}}</td>
+        <td>{{punishment.punishmentUntil}}</td>
+    </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

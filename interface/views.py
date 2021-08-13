@@ -232,3 +232,46 @@ def playersPage(request):
 
 
         return render(request, 'interface/player_list.html', {'page_obj': page_obj, "form": search_form})
+
+
+@login_required(login_url="/login/")
+def getMuteHistory(request, playerName):
+    try:
+        player = NPCPlayer.objects.get(nickname=playerName)
+    except:
+        player = NPCPlayer.objects.create(nickname=playerName)
+    punishments = []
+    cnx = mysql.connector.connect(**litebansconfig)
+    cursor = cnx.cursor()
+    cursor.execute("SELECT banned_by_name, reason, time, until FROM litebans_mutes WHERE uuid='{}' ORDER BY until DESC".format(player.uuid))
+    for row in cursor.fetchall():
+        punishment = {}
+        print(row)
+        punishment["punishedBy"] = row[0]
+        punishment["reason"] = row[1]
+        punishment["punishedOn"] = datetime.utcfromtimestamp(row[2]/1000).strftime('%Y-%m-%d %H:%M:%S')
+        punishment["punishmentUntil"] = datetime.utcfromtimestamp(row[3]/1000).strftime('%Y-%m-%d %H:%M:%S')
+        punishments.append(punishment)
+
+    return render(request, 'interface/history.html', {'punishments': punishments, 'historyOf': playerName, 'whatHistory': 'Mute'})
+
+@login_required(login_url="/login/")
+def getBanHistory(request, playerName):
+    try:
+        player = NPCPlayer.objects.get(nickname=playerName)
+    except:
+        player = NPCPlayer.objects.create(nickname=playerName)
+    punishments = []
+    cnx = mysql.connector.connect(**litebansconfig)
+    cursor = cnx.cursor()
+    cursor.execute("SELECT banned_by_name, reason, time, until FROM litebans_bans WHERE uuid='{}' ORDER BY until DESC".format(player.uuid))
+    for row in cursor.fetchall():
+        punishment = {}
+        print(row)
+        punishment["punishedBy"] = row[0]
+        punishment["reason"] = row[1]
+        punishment["punishedOn"] = datetime.utcfromtimestamp(row[2]/1000).strftime('%Y-%m-%d %H:%M:%S')
+        punishment["punishmentUntil"] = datetime.utcfromtimestamp(row[3]/1000).strftime('%Y-%m-%d %H:%M:%S')
+        punishments.append(punishment)
+
+    return render(request, 'interface/history.html', {'punishments': punishments, 'historyOf': playerName, 'whatHistory': 'Ban'})

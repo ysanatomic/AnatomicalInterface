@@ -20,5 +20,8 @@ urlpatterns = [
     path('serverlog/<str:serverName>/', views.serverLogs, name="serverLogs"),
     path('playerlog/<str:playerName>/', views.playerLogs, name="playerLogs"),
     path('players/', views.playersPage, name="playersPage"),
+    path('muteHistory/<str:playerName>/', views.getMuteHistory, name="getMuteHistory"),
+    path('banHistory/<str:playerName>/', views.getBanHistory, name="getBanHistory"),
+
 ]
 
