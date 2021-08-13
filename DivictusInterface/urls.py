@@ -29,9 +29,9 @@ for cl in ServerClient.objects.all():
     cl.is_online = False
     cl.save()
 
-for pl in NPCPlayer.objects.all():
-    pl.is_currently_online = False
-    pl.save()
+# for pl in NPCPlayer.objects.all():
+#     pl.is_currently_online = False
+#     pl.save()
 
 print("[*] All Server Clients set to Offline")
 print("[*] All Player status set to Offline")

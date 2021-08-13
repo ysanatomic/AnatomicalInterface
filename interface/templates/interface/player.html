@@ -13,8 +13,9 @@
     <p class="">Are they currently Online: <h7 style="color: cornflowerblue;">{{player.is_currently_online}}</h7></p>
     <p class="">Last Online: <h7 style="color: cornflowerblue;">{{player.last_online}}</h7></p>
     <p class="">Last Seen in: <h7 style="color: cornflowerblue;">{{player.was_last_in}}</h7></p>
-    <p class="">Chat logs of <h7 style="color: cornflowerblue;"><a href="/playerlog/{{player.nickname}}">{{player.nickname}}</a></h7></p><br><br>
-
+    <p class="">Chat logs of <h7 style="color: cornflowerblue;"><a href="/playerlog/{{player.nickname}}">{{player.nickname}}</a></h7></p>
+    <p class="">Are they currently Banned: <h7 style="color: crimson;">{{player.currently_banned}}</h7></p>
+    <p class="">Are they currently Muted: <h7 style="color: goldenrod">{{player.currently_muted}}</h7></p><br><br>
 
 
     {% for note in notes %}

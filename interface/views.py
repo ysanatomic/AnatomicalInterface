@@ -16,7 +16,9 @@ import asyncio
 from django.contrib import messages
 from datetime import datetime
 from django.core.paginator import Paginator
-
+import mysql.connector
+from DivictusInterface.secret import litebansconfig
+import uuid
 
 channel_layer = get_channel_layer()
 
@@ -44,6 +46,7 @@ def serversView(request):
     profile = Player.objects.get(user=user)
     hasPermissionsTo = profile.rights_in.all()
     print(hasPermissionsTo)
+    print("Has perm ", profile.checkForPermission("administrator"))
     for server in hasPermissionsTo:
         print(server.is_online)
         if server.is_online:
@@ -98,10 +101,29 @@ def getOnlineUsers(request, serverName):
 def playerView(request, playerName):
 
     notes = Notes.objects.all().filter(player=playerName).order_by('-created_at')
+    cnx = mysql.connector.connect(**litebansconfig)
     try:
         player = NPCPlayer.objects.get(nickname=playerName)
     except:
         player = NPCPlayer.objects.create(nickname=playerName)
+    cursor = cnx.cursor()
+    cursor.execute("SELECT until FROM litebans_bans WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
+    lastbanwhen = cursor.fetchone()[0]
+    cursor2 = cnx.cursor()
+    cursor2.execute("SELECT until FROM litebans_mutes WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
+    lastmutewhen = cursor2.fetchone()[0]
+    print(int(time.time()))
+    print(lastbanwhen)
+    if lastbanwhen > int(time.time() * 1000):
+        player.currently_banned = True
+    else: 
+        player.currently_banned = False
+
+    if lastmutewhen > int(time.time() * 1000):
+        player.currently_muted = True
+    else: 
+        player.currently_muted = False
+    cnx.close()
     return render(request, 'interface/player.html', {"player": player, "notes": notes})
 
 @login_required(login_url="/login/")
@@ -146,12 +168,22 @@ def profile(request):
 
 @login_required(login_url="/login/")
 def serverLogs(request, serverName):
+    user = request.user
+    profile = Player.objects.get(user=user)
     try:
         ServerClient.objects.get(name=serverName)
     except:
         return render(request, 'interface/404.html', status=404)
     
     allMessages = ChatMessage.objects.filter(sent_in=serverName).order_by("-sent_on")
+    if profile.checkForPermission("administrator") or profile.checkForPermission("readprivmessages"):
+        pass
+    else:
+        for message in allMessages:
+            if message.message.startswith("/w ") or message.message.startswith("/msg ") or message.message.startswith("/whisper ") or message.message.startswith("/tell ") or message.message.startswith("/emsg ") or message.message.startswith("/r "):
+                message.message = "[***] Censored Command - you need higher permissions."
+        
+        
     paginator = Paginator(allMessages, 200)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

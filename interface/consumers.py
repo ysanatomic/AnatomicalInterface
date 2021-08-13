@@ -71,7 +71,12 @@ class ChatConsumer(WebsocketConsumer):
         # print(response)
 
     def message(self, event):
-        # print("+" + event)
+        if self.profile.checkForPermission("administrator") or self.profile.checkForPermission("readprivmessages"):
+            pass
+        else:
+            msg = event["message"]["text"]
+            if msg.startswith("/w ") or msg.startswith("/msg ") or msg.startswith("/whisper ") or msg.startswith("/tell ") or msg.startswith("/emsg ") or msg.startswith("/r "):
+                event["message"]["text"] = "[***] Censored Command - you need higher permissions."
         self.send(text_data=json.dumps(event))
 
 
@@ -280,6 +285,7 @@ class ServerConsumer(AsyncWebsocketConsumer):
             text_data_json = text_data_json["getNoteRequest"]
             username = text_data_json["username"]
             requestedByUUID = text_data_json["requestedByUUID"]
+            print(text_data_json)
             print(requestedByUUID)
             notes = Notes.objects.all().filter(player=username).order_by("-created_at")[:3].all()
             notesToSendBack = {}
@@ -311,6 +317,8 @@ class ServerConsumer(AsyncWebsocketConsumer):
             player.is_currently_online = isOnline
             player.was_last_in = self.ServerName
             player.last_online = datetime.now()
+            if player.uuid == None:
+                player.uuid = text_data_json["uuid"]
             player.save()
 
 
