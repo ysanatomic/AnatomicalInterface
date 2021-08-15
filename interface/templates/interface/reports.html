@@ -4,21 +4,41 @@
     <h4 class="h3centered" style="color: darkcyan;">Unresolved Reports</h4><br>
     <table style="width:100%">
     <tr>
+        <th>ID</th>
         <th>Reported Player</th>
         <th>Report Made By</th>
         <th>Reason</th>
         <th>Made On</th>
         <th>Made In</th>
+        <th></th>
     </tr>
     {% for report in page_obj %}
     <tr>
-        <td>{{report.target}}</td>
-        <td>{{report.made_by}}</td>
+        <td>{{report.id}}</td>
+        <td><a href="/player/{{report.target}}/">{{report.target}}</a></td>
+        <td><a href="/player/{{report.made_by}}/">{{report.made_by}}</a></td>
         <td>{{report.content}}</td>
         <td>{{report.made_on}}</td>
         <td>{{report.made_in}}</td>
-
+        <td><a href="?resolvereportid={{report.id}}" type="button" class="btn btn-outline-primary btn-sm">✔️</a></td>
     </tr>
     {% endfor %}
     </table>
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+        
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+        
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+        </div>
 {% endblock %}

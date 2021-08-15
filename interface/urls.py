@@ -24,6 +24,6 @@ urlpatterns = [
     path('banHistory/<str:playerName>/', views.getBanHistory, name="getBanHistory"),
     path('reports/<str:playerName>/', views.getReports, name="reports"),
     path('reports/', views.getReports, name="reportsAllPlayers"),
-
+    path('serverReports/<str:serverName>/', views.getServerReports, name="getServerReports"),
 ]
 

@@ -1,14 +1,24 @@
 {% extends 'interface/base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <h5 class="h3centered" style="color:crimson">Logs of {{subtitle}}</h5>
-
+    <h5 class="h3centered" style="color:cornflowerblue">Logs of {{subtitle}}</h5><br>
+    <table style="width:100%">
+        <tr>
+            <th>Send By</th>
+            <th>Sent On</th>
+            <th>Message</th>
+            <th>Sent In</th>
+        </tr>
     {% for message in page_obj %}
         {# Each "contact" is a Contact model object. #}
-        [{{ message.sent_in }}] [{{ message.sent_on }}] [{{ message.nickname }}] {{ message.message }}<br>
-        
+        <tr>
+            <td><a href="/player/{{message.nickname}}/">{{message.nickname}}</a></td>
+            <td>{{message.sent_on}}</td>
+            <td>{{message.message}}</td>
+            <td>{{message.sent_in}}</td>
+        </tr>        
     {% endfor %}
-
+    </table>
 <div class="pagination">
 <span class="step-links">
     {% if page_obj.has_previous %}

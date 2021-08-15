@@ -13,7 +13,7 @@ from .supportFunctions.tickets import *
 from django.core.paginator import Paginator
 from DivictusInterface.secret import litebansconfig
 import mysql.connector
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 r = redis.Redis(host='localhost', port=6380, db=0)
 channel_layer = get_channel_layer()
@@ -360,7 +360,8 @@ class ServerConsumer(AsyncWebsocketConsumer):
             dataToSendBack["playerName"] = player.nickname
             dataToSendBack["requesterUUID"] = text_data_json["requesterUUID"]
             cnx = mysql.connector.connect(**litebansconfig)
-
+            player.currently_banned = False
+            player.currently_muted = False
             cursor = cnx.cursor()
             cursor.execute("SELECT until FROM litebans_bans WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
             try:
@@ -370,6 +371,8 @@ class ServerConsumer(AsyncWebsocketConsumer):
                 lastmutewhen = cursor2.fetchone()[0]
                 print(int(time.time()))
                 print(lastbanwhen)
+  
+
                 if lastbanwhen > int(time.time() * 1000):
                     player.currently_banned = True
                 else: 
@@ -387,10 +390,31 @@ class ServerConsumer(AsyncWebsocketConsumer):
             dataToSendBack["allowedToReport"] = player.is_allowed_to_report
             dataToSendBack["isCurrentlyOnline"] = player.is_currently_online
             dataToSendBack["lastSeenIn"] = player.was_last_in
-            dataToSendBack["lastOnline"] = str(player.last_online.strftime('%Y-%m-%d %H:%M'))
+            try:
+                dataToSendBack["lastOnline"] = str(player.last_online.strftime('%Y-%m-%d %H:%M'))
+            except:
+                pass
+            date_from = datetime.now() - timedelta(days=1)
+            reportsInTheLast24Hours = Report.objects.filter(
+            target=player.nickname, made_on__gte=date_from, resolved_by="Noone").count()
+
+            dataToSendBack["reportsIn24hours"] = reportsInTheLast24Hours
             print(dataToSendBack)
             await self.send(text_data=json.dumps({"playerInfo": dataToSendBack}))
 
+        elif "resolveReports" in text_data_json:
+            text_data_json = text_data_json["resolveReports"]
+            player = text_data_json["player"]
+            made_byUUID = text_data_json["made_by"]
+            try:
+                madeBy = Player.objects.get(uuid=made_byUUID)
+                madeByUser = madeBy.user
+                reports = Report.objects.filter(target=player, resolved_by="Noone")
+                for report in reports:
+                    report.resolved_by = madeByUser.username
+                    report.save()
+            except Exception as e:
+                print(e)
 
     async def message(self, event):
         print(event)

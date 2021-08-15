@@ -106,6 +106,8 @@ def playerView(request, playerName):
         player = NPCPlayer.objects.get(nickname=playerName)
     except:
         player = NPCPlayer.objects.create(nickname=playerName)
+    player.currently_banned = False
+    player.currently_muted = False
     cursor = cnx.cursor()
     cursor.execute("SELECT until FROM litebans_bans WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
     try:
@@ -282,6 +284,17 @@ def getBanHistory(request, playerName):
 
 @login_required(login_url="/login/")
 def getReports(request, playerName=""):
+    user = request.user
+    profile = Player.objects.get(user=user)
+    resolvereportid = request.GET.get('resolvereportid')
+    if resolvereportid != None:
+        try:
+            reportToDel = Report.objects.get(id=resolvereportid)
+            if reportToDel.resolved_by == "Noone":
+                reportToDel.resolved_by = user.username
+                reportToDel.save()
+        except:
+            pass
     if playerName == "":
         allReports = Report.objects.filter(resolved_by="Noone").order_by("-made_on")
         paginator = Paginator(allReports, 200)
@@ -294,3 +307,18 @@ def getReports(request, playerName=""):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         return render(request, 'interface/reports.html', {'page_obj': page_obj})
+
+
+@login_required(login_url="/login/")
+def getServerReports(request, serverName):
+    user = request.user
+    profile = Player.objects.get(user=user)
+    try:
+        ServerClient.objects.get(name=serverName)
+    except:
+        return render(request, 'interface/404.html', status=404)
+    allReports = Report.objects.filter(resolved_by="Noone", made_in=serverName).order_by("-made_on")
+    paginator = Paginator(allReports, 200)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'interface/reports.html', {'page_obj': page_obj})

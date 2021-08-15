@@ -9,17 +9,33 @@
             </div>
         {% endfor %}
     {% endif %}
-    <h5 class="h3centered" style="color:crimson">{{player.nickname}}</h5>
-    <p class="">Are they currently Online: <h7 style="color: cornflowerblue;">{{player.is_currently_online}}</h7></p>
-    <p class="">Last Online: <h7 style="color: cornflowerblue;">{{player.last_online}}</h7></p>
-    <p class="">Last Seen in: <h7 style="color: cornflowerblue;">{{player.was_last_in}}</h7></p>
-    <p class="">Chat logs of <h7 style="color: cornflowerblue;"><a href="/playerlog/{{player.nickname}}">{{player.nickname}}</a></h7></p>
-    <p class="">Are they currently Banned: <h7 style="color: crimson;">{{player.currently_banned}}</h7></p>
-    <p class="">Are they currently Muted: <h7 style="color: goldenrod">{{player.currently_muted}}</h7></p>
-    <p class="">Ban History of <h7 style="color: cornflowerblue;"><a href="/banHistory/{{player.nickname}}" style="color: crimson;">{{player.nickname}}</a></h7></p>
-    <p class="">Mute History of <h7 style="color: cornflowerblue;"><a href="/muteHistory/{{player.nickname}}" style="color:tomato;">{{player.nickname}}</a></h7></p>
-    <p class="">Report History of <h7 style="color: cornflowerblue;"><a href="/reports/{{player.nickname}}" style="color:cornflowerblue;">{{player.nickname}}</a></h7></p>
-    <p class="">Are they allowed to report: <h7 style="color: cornflowerblue;">{{player.is_allowed_to_report}}</h7></p><br><br>
+
+    <h5 class="h3centered" style="color:cornflowerblue">{{player.nickname}}</h5><br>
+    <table style="width:100%">
+        <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+        <tr>
+            <td><p class="">Are they currently Online: <h7 style="color: cornflowerblue;">{{player.is_currently_online}}</h7></p></td>
+            <td><p class="">Last Online: <h7 style="color: cornflowerblue;">{{player.last_online}}</h7></p></td>
+            <td><p class="">Last Seen in: <h7 style="color: cornflowerblue;">{{player.was_last_in}}</h7></p></td>
+        </tr>  
+        <tr>
+            <td><p class="">Chat logs of <h7 style="color: cornflowerblue;"><a href="/playerlog/{{player.nickname}}">{{player.nickname}}</a></h7></p></td>
+            <td><p class="">Are they currently Banned: <h7 style="color: crimson;">{{player.currently_banned}}</h7></p></td>
+            <td><p class="">Are they currently Muted: <h7 style="color: goldenrod">{{player.currently_muted}}</h7></p></td>
+        </tr> 
+        <tr>
+            <td><p class="">Ban History of <h7 style="color: cornflowerblue;"><a href="/banHistory/{{player.nickname}}" style="color: crimson;">{{player.nickname}}</a></h7></p></td>
+            <td><p class="">Mute History of <h7 style="color: cornflowerblue;"><a href="/muteHistory/{{player.nickname}}" style="color:tomato;">{{player.nickname}}</a></h7></p></td>
+            <td><p class="">Report History of <h7 style="color: cornflowerblue;"><a href="/reports/{{player.nickname}}" style="color:cornflowerblue;">{{player.nickname}}</a></h7></p></td>
+        </tr> 
+        <tr>
+            <td><p class="">Are they allowed to report: <h7 style="color: cornflowerblue;">{{player.is_allowed_to_report}}</h7></p></td>
+        </tr>
+    </table><br>
 
 
     {% for note in notes %}

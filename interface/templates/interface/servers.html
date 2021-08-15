@@ -1,7 +1,7 @@
 {% extends 'interface/base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <h3 class="h3centered"><i>All Servers<i></h3>
+    <h3 class="h3centered"><i>All Servers</i></h3>
     <h5 class="h3centered"><i>you have permissions for</i></h5>
     {% for server in servers %}
         <div class="xshadow">
@@ -15,6 +15,7 @@
                 <p class="h3centered"><h7><a href="/chat/{{server.name}}">🗯 Live Chat</a></h7>&nbsp;&nbsp;&nbsp;👁  Players Online: <h7 id="playercount{{server.id}}">{{server.playerCount}}</h7></p>
                 <p class="h3centered"><h7><a href="/onlinePlayers/{{server.name}}">⌨️ Player list</a></h7></p>
                 <p class="h3centered"><h7><a href="/serverlog/{{server.name}}">🗄 Server Logs</a></h7></p>
+                <p class="h3centered"><h7><a href="/serverReports/{{server.name}}">⛔ Reports</a></h7></p>
             </div>
         </div>
     {% endfor %}
