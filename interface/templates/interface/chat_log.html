@@ -14,7 +14,7 @@
         <tr>
             <td><a href="/player/{{message.nickname}}/">{{message.nickname}}</a></td>
             <td>{{message.sent_on}}</td>
-            <td>{{message.message}}</td>
+            <td class="col-md-6" style="word-break: break-all;">{{message.message | safe | slice:"100"}}</td>
             <td>{{message.sent_in}}</td>
         </tr>        
     {% endfor %}

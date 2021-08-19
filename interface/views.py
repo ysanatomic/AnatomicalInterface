@@ -313,6 +313,15 @@ def getReports(request, playerName=""):
 def getServerReports(request, serverName):
     user = request.user
     profile = Player.objects.get(user=user)
+    resolvereportid = request.GET.get('resolvereportid')
+    if resolvereportid != None:
+        try:
+            reportToDel = Report.objects.get(id=resolvereportid)
+            if reportToDel.resolved_by == "Noone":
+                reportToDel.resolved_by = user.username
+                reportToDel.save()
+        except:
+            pass
     try:
         ServerClient.objects.get(name=serverName)
     except:

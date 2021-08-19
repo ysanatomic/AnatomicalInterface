@@ -156,3 +156,7 @@ footer {
   .centered p {
     text-align: center;
   }
+
+  .pbreakclass p {
+    word-break:break-all;
+  }
