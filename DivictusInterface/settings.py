@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'defender',
     'channels',
     'interface.apps.InterfaceConfig',
     'crispy_forms',
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'defender.middleware.FailedLoginMiddleware',    
 ]
 
 ROOT_URLCONF = 'DivictusInterface.urls'
@@ -147,3 +149,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+DEFENDER_LOGIN_FAILURE_LIMIT = 5
+DEFENDER_BEHIND_REVERSE_PROXY = False
+DEFENDER_DISABLE_IP_LOCKOUT = False

@@ -22,6 +22,7 @@ from interface.models import NPCPlayer, ServerClient
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('defender/', include('defender.urls')), # defender admin
     path('', include('interface.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
