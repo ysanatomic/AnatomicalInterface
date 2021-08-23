@@ -1,5 +1,20 @@
 # DivictusInterface
-#### The Interface was programmed to be used by Divictus Gaming but was a pro bono project and as such is opensource.
+#### The Interface was programmed to be used by the Minecraft Network *Divictus Gaming* but was a pro bono project and as such is opensource.
+```
+The Interface allows the staff of the Minecraft Network to: 
+- Monitor server status
+- Players online / All players who have BEEN online
+- Player profile - when and where last seen, mute histories, ban histories, report histories
+- Player chat logs
+- Server chat logs
+- Live chat for each server.
+- Notes about players - allows the staff to leave notes about the players which other staff members can see
+- Reports - allows players to report others which alerts the online staff and adds the report to their profile
+- Privacy permissions - hiding private player messages from staff in the logs unless they are permitted to see them.
+- AND MORE
+```
+It is made to be used on networks but it could also be used on a single server.
+
 
 ![Index Page if logged in](https://i.imgur.com/1kUBxVB.png)
 
