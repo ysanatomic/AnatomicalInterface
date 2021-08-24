@@ -74,6 +74,10 @@ DATABASES = {
     }
 }
 ```
+When you have chosen what type of database you want to use you have to now create all the tables needed. You can do that with
+```
+python3 manage.py migrate
+```
 
 The interface requires two Redis instances (could technically use only one with 2 databases - but currently configured for two)
 
