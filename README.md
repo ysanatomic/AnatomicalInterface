@@ -164,6 +164,10 @@ Disable debug mode in `DivictusInterface/settings.py`
 ```
 DEBUG = False
 ```
+Now you should collect the static files into one folder. You can do that using this command:
+```
+python3 manage.py collectstatic
+```
 Starting the interface up with daphne is as easy as 
 ```
 daphne DivictusInterface.asgi:application
@@ -174,7 +178,6 @@ You should probably use SSL which would require you to run daphne in a different
 ```
 daphne -e ssl:443:privateKey=key.pem:certKey=crt.pem DivictusInterface.asgi:application
 ```
-
 **This should be all you need to do to use the interface in production.**
 
 

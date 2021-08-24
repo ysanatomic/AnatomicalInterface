@@ -41,8 +41,11 @@ class ChatConsumer(WebsocketConsumer):
 
 
     def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name, self.channel_name)
+        try:
+            async_to_sync(self.channel_layer.group_discard)(
+                self.room_group_name, self.channel_name)
+        except:
+            pass
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
