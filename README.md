@@ -170,6 +170,11 @@ daphne DivictusInterface.asgi:application
 ```
 Django however does NOT server static files by default. That is why I have added whitenoise to the project with handles that so you don't need to configure and use Nginx.
 
+You should probably use SSL which would require you to run daphne in a different way.
+```
+daphne -e ssl:443:privateKey=key.pem:certKey=crt.pem DivictusInterface.asgi:application
+```
+
 **This should be all you need to do to use the interface in production.**
 
 
