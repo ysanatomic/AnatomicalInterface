@@ -3,3 +3,4 @@ DivictusInterface/secret.py
 env/
 *.pyc
 *.pyo
+/static
