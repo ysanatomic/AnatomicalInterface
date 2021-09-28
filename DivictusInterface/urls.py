@@ -26,13 +26,16 @@ urlpatterns = [
     path('', include('interface.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-for cl in ServerClient.objects.all():
-    cl.is_online = False
-    cl.save()
+try:
+    for cl in ServerClient.objects.all():
+        cl.is_online = False
+        cl.save()
 
-# for pl in NPCPlayer.objects.all():
-#     pl.is_currently_online = False
-#     pl.save()
+    for pl in NPCPlayer.objects.all():
+        pl.is_currently_online = False
+        pl.save()
+except Exception as e:
+    print(e)
 
 print("[*] All Server Clients set to Offline")
 print("[*] All Player status set to Offline")

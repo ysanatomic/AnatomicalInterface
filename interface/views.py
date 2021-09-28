@@ -112,16 +112,19 @@ def playerView(request, playerName):
     cursor.execute("SELECT until FROM litebans_bans WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
     try:
         lastbanwhen = cursor.fetchone()[0]
-        cursor2 = cnx.cursor()
-        cursor2.execute("SELECT until FROM litebans_mutes WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
-        lastmutewhen = cursor2.fetchone()[0]
-        print(int(time.time()))
         print(lastbanwhen)
         if lastbanwhen > int(time.time() * 1000):
             player.currently_banned = True
         else: 
             player.currently_banned = False
+    except Exception as e:
+        print(e)
 
+    try:
+        cursor2 = cnx.cursor()
+        cursor2.execute("SELECT until FROM litebans_mutes WHERE uuid='{}' ORDER BY until DESC LIMIT 1".format(player.uuid))
+        lastmutewhen = cursor2.fetchone()[0]
+        print(int(time.time()))
         if lastmutewhen > int(time.time() * 1000):
             player.currently_muted = True
         else: 
