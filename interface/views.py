@@ -17,7 +17,7 @@ from django.contrib import messages
 from datetime import datetime
 from django.core.paginator import Paginator
 import mysql.connector
-from DivictusInterface.secret import litebansconfig
+from AnatomicalInterface.secret import litebansconfig
 import uuid
 
 channel_layer = get_channel_layer()

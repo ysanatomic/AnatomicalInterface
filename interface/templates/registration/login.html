@@ -12,7 +12,7 @@
         <form method="POST">
             {% csrf_token %}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Log into your Divictus Interface Account</legend>
+                <legend class="border-bottom mb-4">Log into your Anatomical Interface Account</legend>
                 {{ form | crispy }}
             </fieldset>
             <div class="form-group">
@@ -24,7 +24,7 @@
                 Forgot Password? <a class="ml-2" href="{% url 'password_reset' %}">Reset Password</a><br>
             </small>
             <small class="text-muted">
-                Warning: This page is Divictus Staff only. You might get blacklisted if you try to log in.<br>
+                Warning: This page is Staff only. You might get blacklisted if you try to log in.<br>
             </small>
             <small class="text-muted">
                 Developed by Anatomic.<br>

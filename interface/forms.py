@@ -19,4 +19,4 @@ class AddNoteForm(forms.ModelForm):
 
 
 class Search(forms.Form):
-	search = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Search in Divictus Interface', 'class': 'search-box'}))
+	search = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder': 'Search in Anatomical Interface', 'class': 'search-box'}))

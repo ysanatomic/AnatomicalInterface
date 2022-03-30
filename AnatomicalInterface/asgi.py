@@ -1,5 +1,5 @@
 """
-ASGI config for DivictusInterface project.
+ASGI config for AnatomicalInterface project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 
 import os
 import django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'DivictusInterface.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'AnatomicalInterface.settings')
 django.setup()
 from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application

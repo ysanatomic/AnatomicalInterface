@@ -1,5 +1,5 @@
 *.sqlite3
-DivictusInterface/secret.py
+AnatomicalInterface/secret.py
 env/
 *.pyc
 *.pyo

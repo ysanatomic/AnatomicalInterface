@@ -1,4 +1,4 @@
-# DivictusInterface
+# AnatomicalInterface
 #### The Interface was programmed to be used by Divictus Gaming but was a pro bono project and as such is open-source.
 
 ```
@@ -79,20 +79,16 @@ When you have chosen what type of database you want to use you have to now creat
 python3 manage.py migrate
 ```
 
-The interface requires two Redis instances (could technically use only one with 2 databases - but currently configured for two)
+The interface requires a Redis instance to be running on port 6379.
 
-One of them has to be running on port 6379 and the other one on port 6380.
-
-It is really easy to spin them in docker containers for under a minute using
+It is really easy to spin one in a docker container
 ```
-sudo docker run --name redisforinterfacetickets -p 6380:6379 -d redis
-sudo docker run --name redisforinterfacechannels -p 6379:6379 -d redis
+sudo docker run --name redisforinterface -p 6379:6379 -d redis
 ```
 
-And later you can start them again using
+And later you can start it again using
 ```
-sudo docker start redisforinterfacetickets 
-sudo docker start redisforinterfacechannels 
+sudo docker start redisforinterface 
 ```
 
 One of the Redis instances is used by the Django channels while the other is used by my ticket system which allows only one WebSocket to be opened per server.
@@ -164,7 +160,7 @@ DEFENDER_DISABLE_USERNAME_LOCKOUT = True
 You shouldn't make the interface available to the internet as it is currently set up.
 You should disable debug mode and config it with **Nginx** and **daphne**.
 
-Disable debug mode in `DivictusInterface/settings.py`
+Disable debug mode in `AnatomicalInterface/settings.py`
 ```
 DEBUG = False
 ```
@@ -174,13 +170,13 @@ python3 manage.py collectstatic
 ```
 Starting the interface up with daphne is as easy as 
 ```
-daphne DivictusInterface.asgi:application
+daphne AnatomicalInterface.asgi:application
 ```
 Django however does NOT server static files by default. That is why I have added whitenoise to the project with handles that so you don't need to configure and use Nginx.
 
 You should probably use SSL which would require you to run daphne in a different way.
 ```
-daphne -e ssl:443:privateKey=key.pem:certKey=crt.pem DivictusInterface.asgi:application
+daphne -e ssl:443:privateKey=key.pem:certKey=crt.pem AnatomicalInterface.asgi:application
 ```
 **This should be all you need to do to use the interface in production.**
 

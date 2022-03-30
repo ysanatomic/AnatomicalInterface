@@ -11,11 +11,11 @@ from django.contrib.auth.models import User
 from .serverFunctions.getPlayers import getPlayerCount
 from .supportFunctions.tickets import *
 from django.core.paginator import Paginator
-from DivictusInterface.secret import litebansconfig
+from AnatomicalInterface.secret import litebansconfig
 import mysql.connector
 from datetime import date, datetime, timedelta
 
-r = redis.Redis(host='localhost', port=6380, db=0)
+r = redis.Redis(host='localhost', port=6379, db=0)
 channel_layer = get_channel_layer()
 
 
@@ -254,7 +254,7 @@ class ServerConsumer(AsyncWebsocketConsumer):
             return
         print(text_data_json)
         redis = await aioredis.create_redis(
-        'redis://localhost:6380')
+        'redis://localhost:6379/0')
         if "inquiryResponse" in text_data_json:
             text_data_json = text_data_json["inquiryResponse"]
             ticket = text_data_json["ticket"]
